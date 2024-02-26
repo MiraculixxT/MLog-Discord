@@ -2,6 +2,7 @@ package de.miraculixx.mlog.discord
 
 import de.miraculixx.mlog.MLogBot
 import de.miraculixx.mlog.backend.LogPayloadData
+import dev.minn.jda.ktx.interactions.components.button
 import dev.minn.jda.ktx.messages.Embed
 import dev.minn.jda.ktx.messages.send
 import kotlinx.coroutines.CoroutineScope
@@ -9,16 +10,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
+import net.dv8tion.jda.api.entities.emoji.Emoji
+import net.dv8tion.jda.api.interactions.components.ActionRow
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle
 import net.dv8tion.jda.api.utils.FileUpload
 
 object GuildManager {
     private val codeChars = ('a'..'z') + ('A'..'Z') + ('0'..'9')
     private val badContentRegex = Regex("[`@#]")
+    private val emojiDelete = Emoji.fromUnicode("\uD83D\uDDD1\uFE0F")
 
     private val guildConfigurations: MutableMap<GuildKey, GuildConfiguration> = mutableMapOf() // <key, config>
     private val guildRequests: MutableMap<GuildKey, MutableMap<String, MessageChannel>> = mutableMapOf() // <key, <code, channel>>
 
-    fun requestNewCode(guildKey: GuildKey, channel: MessageChannel): String? {
+    fun requestNewCode(guildKey: GuildKey, channel: MessageChannel): Pair<String, GuildConfiguration>? {
         val config = guildConfigurations[guildKey] ?: return null
         val timeout = config.codeTimeout
 
@@ -32,7 +37,7 @@ object GuildManager {
             delay(timeout)
             guildRequests.remove(code)
         }
-        return code
+        return code to config
     }
 
     fun validateCode(guildKey: GuildKey, code: String): Boolean {
@@ -49,7 +54,7 @@ object GuildManager {
 
         val channel = guildRequests[guildKey]?.remove(data.code) ?: return false
         channel.send(embeds = listOf(Embed {
-            title = ":file_folder: || User Logs"
+            title = "<:mweb:1117472967350308907> || User Logs"
             field {
                 val modData = data.mod
                 name = "\uD83D\uDD27 Mod Info"
@@ -67,7 +72,9 @@ object GuildManager {
                 name = "$serverEmote Server Info"
                 value = "Version: `${serverData.version.stripContent()}`\nLoader: `${serverData.loader.stripContent()}`\nSystem: `${serverData.system.stripContent()}`"
             }
-        }), files = files.map { FileUpload.fromData(it.first, it.second) }).queue()
+            color = 0xa0712a
+        }), files = files.map { FileUpload.fromData(it.first, it.second) },
+            components = listOf(ActionRow.of(button("MLOG:DELETE", "Delete Logs", emojiDelete, ButtonStyle.DANGER)))).queue()
         return true
     }
 
