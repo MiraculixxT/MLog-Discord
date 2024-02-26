@@ -1,8 +1,8 @@
 package de.miraculixx.mlog
 
-import de.miraculixx.mcord.utils.manager.ButtonManager
-import de.miraculixx.mcord.utils.manager.DropDownManager
-import de.miraculixx.mcord.utils.manager.ModalManager
+import de.miraculixx.mlog.utils.manager.ButtonManager
+import de.miraculixx.mlog.utils.manager.DropDownManager
+import de.miraculixx.mlog.utils.manager.ModalManager
 import de.miraculixx.mlog.utils.manager.SlashCommandManager
 import de.miraculixx.mlog.utils.data.BotConfig
 import de.miraculixx.mlog.utils.readJson
@@ -36,8 +36,8 @@ object MLogBot {
         JDA.awaitReady()
 
         ButtonManager.startListen(JDA)
-        DropDownManager.startListen(JDA)
-        ModalManager.startListen(JDA)
+//        DropDownManager.startListen(JDA)
+//        ModalManager.startListen(JDA)
         SlashCommandManager.startListen(JDA)
 
         println("MLog is now online!")

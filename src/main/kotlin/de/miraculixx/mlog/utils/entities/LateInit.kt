@@ -1,4 +1,4 @@
-package de.miraculixx.mcord.utils.entities
+package de.miraculixx.mlog.utils.entities
 
 interface LateInit {
     fun setup() {}
