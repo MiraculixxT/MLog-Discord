@@ -9,7 +9,6 @@ import dev.minn.jda.ktx.events.listener
 import dev.minn.jda.ktx.interactions.commands.*
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
-import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 
@@ -25,11 +24,14 @@ object SlashCommandManager {
             val commandClass = commands[it.name] ?: return@listener
             val subCommandGroup = it.subcommandGroup
             LOGGER.info("${it.user.name}: /${it.name}${if (subCommandGroup == null) "" else " $subCommandGroup"} ${it.subcommandName}")
-            commandClass.trigger(it)
-        }
-        jda.listener<CommandAutoCompleteInteractionEvent> {
-            val commandClass = commands[it.name] ?: return@listener
-            commandClass.tabComplete(it)
+            try {
+                commandClass.trigger(it)
+            } catch (e: Exception) {
+                LOGGER.warn("Error while executing command: ${e.message}")
+                it.reply("```diff\n- A critical error occurred while executing the command!\n" +
+                        "- Please notify us to get this fixed quickly.\n" +
+                        "- https://dc.mutils.net```").setEphemeral(true).queue()
+            }
         }
     }
 
@@ -39,7 +41,7 @@ object SlashCommandManager {
                 defaultPermissions = DefaultMemberPermissions.DISABLED
                 subcommand("register-mod", "Register a new mod for your server") {
                     option<String>("project", "The ID of your mod/plugin", true)
-                    option<String>("type", "Client side, server side or both?", true, true) {
+                    option<Long>("type", "Client side, server side or both?", true) {
                         choice("client", 0)
                         choice("server", 0)
                         choice("both", 0)
