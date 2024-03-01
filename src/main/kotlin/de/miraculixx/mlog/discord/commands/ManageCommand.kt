@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 
 class ManageCommand: SlashCommandEvent {
-    private val currentTimeZone = ZoneOffset.of(ZoneOffset.systemDefault().id)
+    private val currentTimeZone = ZoneOffset.UTC
 
     override suspend fun trigger(it: SlashCommandInteractionEvent) {
         val guildID = it.guild?.idLong ?: return
@@ -104,7 +104,29 @@ class ManageCommand: SlashCommandEvent {
                 })).queue()
             }
             "remove" -> {
-
+                val project = it.getOption("project")?.asString ?: return
+                val code = it.getOption("code")?.asString ?: return
+                val rows = SQL.update("DELETE FROM Requests WHERE PKey IN (SELECT PKey FROM Projects WHERE GKey=(SELECT GKey FROM Guilds WHERE ID=?) AND ModID=?) AND Code=?") {
+                    setLong(1, guildID)
+                    setString(2, project)
+                    setString(3, code)
+                }
+                if (rows <= 0) {
+                    it.reply_(embeds = listOf(Embed {
+                        title = "<:no:1212465201509568543>  || Request Not Found"
+                        description = "The request `$code` for the project `$project` was not found!\n" +
+                                "Please make sure the code is correct and try again."
+                        colorError()
+                        mlogFooter()
+                    })).queue()
+                } else {
+                    it.reply_(embeds = listOf(Embed {
+                        title = "<:yes:1212465222175031316>  || Request Removed"
+                        description = "The request `$code` for the project `$project` has been removed!\nThe command/code will no longer work"
+                        colorSuccess()
+                        mlogFooter()
+                    })).queue()
+                }
             }
         }
     }
