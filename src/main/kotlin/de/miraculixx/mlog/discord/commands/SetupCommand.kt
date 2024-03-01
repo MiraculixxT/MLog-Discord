@@ -2,6 +2,7 @@ package de.miraculixx.mlog.discord.commands
 
 import de.miraculixx.mlog.discord.*
 import de.miraculixx.mlog.sql.SQL
+import de.miraculixx.mlog.sql.getAllStrings
 import de.miraculixx.mlog.utils.entities.SlashCommandEvent
 import dev.minn.jda.ktx.messages.Embed
 import dev.minn.jda.ktx.messages.reply_
@@ -22,16 +23,16 @@ class SetupCommand : SlashCommandEvent {
                 val typeID = it.getOption("type")?.asInt ?: return
                 val timeout = it.getOption("timeout")?.asString ?: return
 
-                val rows = SQL.call("SELECT ModID FROM Projects JOIN Guilds ON Guilds.GKey = Projects.GKey WHERE ID=?") {
+                val projects = SQL.call("SELECT ModID FROM Projects JOIN Guilds ON Guilds.GKey = Projects.GKey WHERE ID=?") {
                     setLong(1, guild.idLong)
-                }.fetchSize
+                }.getAllStrings("ModID")
                 val guildMetrics = GuildData.getGuildMetrics(guild.idLong)
                 if (guildMetrics == null) {
                     it.databaseError(101)
                     return
                 }
 
-                if (rows >= guildMetrics.maxProjects) {
+                if (projects.size >= guildMetrics.maxProjects) {
                     it.reply_(embeds = listOf(Embed {
                         title = "<:no:1212465201509568543>  || Project Not Added"
                         description = "The project `mod` could not be added. Your guild already reached the maximum of **3** concurrent projects!\n" +
@@ -40,6 +41,17 @@ class SetupCommand : SlashCommandEvent {
                         colorError()
                         mlogFooter()
                     })).queue()
+                    return
+                }
+
+                if (modID in projects) {
+                    it.reply_(embeds = listOf(Embed {
+                        title = "<:no:1212465201509568543>  || Project Not Added"
+                        description = "The project `$modID` could not be added.\nIt is already configured for this guild!"
+                        colorError()
+                        mlogFooter()
+                    })).queue()
+                    return
                 }
 
                 val type = GuildProjectType.fromID(typeID)
@@ -57,8 +69,8 @@ class SetupCommand : SlashCommandEvent {
                 it.reply_(embeds = listOf(Embed {
                     title = "<:yes:1212465222175031316>  || Project Added"
                     description = "The project `$modID` has been added to your guild!\n" +
-                            "You can now generate a code for your users to request their logs.\n" +
-                            colorSuccess()
+                            "You can now generate a code for your users to request their logs."
+                    colorSuccess()
                     mlogFooter()
                 })).queue()
             }
