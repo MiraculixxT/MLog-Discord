@@ -1,7 +1,7 @@
 package de.miraculixx.mlog.backend
 
 import de.miraculixx.mlog.discord.GuildKey
-import de.miraculixx.mlog.discord.GuildManager
+import de.miraculixx.mlog.discord.RequestManager
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
@@ -47,8 +47,8 @@ fun Application.configureWebhooks() {
                     return@post
                 }
 
-                val guildKey = GuildKey(guildID, modID)
-                if (!GuildManager.validateCode(guildKey, code)) {
+                val guildKey = GuildKey(guildID.toLongOrNull() ?: -1, modID)
+                if (guildKey.guildId == -1L || !RequestManager.validateCode(guildKey, code)) {
                     call.respondText("Invalid code or credentials!", status = HttpStatusCode.Forbidden)
                 }
 
@@ -83,7 +83,7 @@ fun Application.configureWebhooks() {
                     return@post
                 }
 
-                GuildManager.handleRequest(guildKey, data!!, files)
+                RequestManager.handleRequest(guildKey, data!!, files)
             }
         }
     }

@@ -8,12 +8,9 @@ import io.ktor.server.plugins.ratelimit.*
 import kotlin.time.Duration.Companion.seconds
 
 object WebServer {
-
     init {
         embeddedServer(Netty, port = MLogBot.botConfig.serverPort, host = "0.0.0.0", module = Application::module).start(wait = false)
     }
-
-
 }
 
 private fun Application.module() {
