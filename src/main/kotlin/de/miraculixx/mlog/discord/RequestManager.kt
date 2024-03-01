@@ -22,8 +22,6 @@ object RequestManager {
     private val badContentRegex = Regex("[`@#]")
     private val emojiDelete = Emoji.fromUnicode("\uD83D\uDDD1\uFE0F")
 
-//    private val guildConfigurations: MutableMap<String, GuildConfiguration> = mutableMapOf() // <guildID, config>
-//    private val guildRequests: MutableMap<GuildKey, MutableMap<String, MessageChannel>> = mutableMapOf() // <key, <code, channel>>
     private val activeKeys = mutableSetOf<String>()
 
     suspend fun initialize() {
