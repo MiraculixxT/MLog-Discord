@@ -1,5 +1,9 @@
 package de.miraculixx.mlog
 
+import de.miraculixx.mlog.backend.WebServer
+import de.miraculixx.mlog.discord.GuildData
+import de.miraculixx.mlog.discord.RequestManager
+import de.miraculixx.mlog.discord.events.TabComplete
 import de.miraculixx.mlog.utils.data.BotConfig
 import de.miraculixx.mlog.utils.manager.ButtonManager
 import de.miraculixx.mlog.utils.manager.SlashCommandManager
@@ -12,35 +16,41 @@ import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.utils.MemberCachePolicy
 import java.io.File
 import java.util.*
+import java.util.logging.Logger
 
 fun main() {
     MLogBot
 }
 
-lateinit var INSTANCE: MLogBot
+val LOGGER: Logger = Logger.getLogger("MLog")
 
 object MLogBot {
     var JDA: JDA
     val botConfig = File("config/bot.json").readJson<BotConfig>()
 
     init {
-        INSTANCE = this
+        runBlocking {
+            JDA = default(botConfig.token) {
+                setActivity(Activity.watching("MLog sharing"))
+                setStatus(OnlineStatus.DO_NOT_DISTURB)
+                setMemberCachePolicy(MemberCachePolicy.NONE)
+            }
+            JDA.awaitReady()
 
-        JDA = default(botConfig.token) {
-            setActivity(Activity.watching("MLog sharing"))
-            setStatus(OnlineStatus.DO_NOT_DISTURB)
-            setMemberCachePolicy(MemberCachePolicy.NONE)
-        }
-        JDA.awaitReady()
-
-        ButtonManager.startListen(JDA)
+            ButtonManager.startListen(JDA)
 //        DropDownManager.startListen(JDA)
 //        ModalManager.startListen(JDA)
-        SlashCommandManager.startListen(JDA)
+            SlashCommandManager.startListen(JDA)
 
-        println("MLog is now online!")
+            WebServer
+            RequestManager.initialize()
+            GuildData.initialize(JDA)
+            TabComplete.startListen(JDA)
 
-        keepAlive()
+            println("MLog is now online!")
+
+            keepAlive()
+        }
     }
 
     private fun keepAlive() {
