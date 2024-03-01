@@ -60,7 +60,7 @@ class SetupCommand : SlashCommandEvent {
                             "You can now generate a code for your users to request their logs.\n" +
                             colorSuccess()
                     mlogFooter()
-                }))
+                })).queue()
             }
 
             "unregister-mod" -> {
