@@ -21,21 +21,21 @@ object SQL {
             sqlCredentials.password
         )
         if (con.isValid(0)) LOGGER.info(">> Connection established to ${sqlCredentials.url}")
-        else LOGGER.warning("ERROR >> MariaDB refused the connection")
+        else LOGGER.warn("ERROR >> MariaDB refused the connection")
         return con
     }
 
     suspend inline fun call(@Language("SQL") statement: String, arguments: PreparedStatement.() -> Unit = {}): ResultSet = try {
             buildStatement(statement).apply(arguments).executeQuery()
         } catch (e: Exception) {
-            LOGGER.warning(e.message)
+            LOGGER.warn(e.message)
             EmptyResultSet()
         }
 
     suspend inline fun update(@Language("SQL") statement: String, arguments: PreparedStatement.() -> Unit = {}): Int = try {
             buildStatement(statement).apply(arguments).executeUpdate()
         } catch (e: Exception) {
-            LOGGER.warning(e.message)
+            LOGGER.warn(e.message)
             -1
         }
 
@@ -43,7 +43,7 @@ object SQL {
         var tries = 0
         while (!connection.isValid(1)) {
             tries++
-            LOGGER.warning("ERROR >> SQL - No valid connection. Retry in ${tries}s")
+            LOGGER.warn("ERROR >> SQL - No valid connection. Retry in ${tries}s")
             connection = connect()
             delay(tries * 1000L)
         }

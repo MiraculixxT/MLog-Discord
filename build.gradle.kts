@@ -25,8 +25,8 @@ dependencies {
     implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-rate-limit:$ktor_version")
 
-    implementation("org.slf4j", "slf4j-nop", "2.0.0-alpha7")
-    implementation("ch.qos.logback", "logback-classic", "1.2.11")
+    implementation("ch.qos.logback:logback-classic:1.4.14")
+    implementation("ch.qos.logback:logback-core:1.4.14")
 
     implementation("org.mariadb.jdbc", "mariadb-java-client", "3.3.3")
 }

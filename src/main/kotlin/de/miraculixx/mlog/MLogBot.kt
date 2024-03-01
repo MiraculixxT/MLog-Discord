@@ -14,15 +14,16 @@ import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.utils.MemberCachePolicy
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.util.*
-import java.util.logging.Logger
 
 fun main() {
     MLogBot
 }
 
-val LOGGER: Logger = Logger.getLogger("MLog")
+val LOGGER: Logger = LoggerFactory.getLogger(MLogBot::class.java)
 
 object MLogBot {
     var JDA: JDA
@@ -31,7 +32,7 @@ object MLogBot {
     init {
         runBlocking {
             JDA = default(botConfig.token) {
-                setActivity(Activity.watching("MLog sharing"))
+                setActivity(Activity.watching("for logs"))
                 setStatus(OnlineStatus.DO_NOT_DISTURB)
                 setMemberCachePolicy(MemberCachePolicy.NONE)
             }
@@ -47,7 +48,7 @@ object MLogBot {
             GuildData.initialize(JDA)
             TabComplete.startListen(JDA)
 
-            println("MLog is now online!")
+            LOGGER.info("MLog is now online!")
 
             keepAlive()
         }
@@ -62,12 +63,13 @@ object MLogBot {
                     "exit" -> {
                         JDA.shardManager?.setStatus(OnlineStatus.OFFLINE)
                         JDA.shutdown()
-                        println("MLog is now offline!")
+                        LOGGER.info("MLog is now offline!")
                         online = false
                     }
 
                     else -> {
-                        println("Command $out not found!\nCurrent Commands -> 'exit'")
+                        LOGGER.warn("Command $out not found!")
+                        LOGGER.warn("Current Commands -> 'exit'")
                     }
                 }
             }
