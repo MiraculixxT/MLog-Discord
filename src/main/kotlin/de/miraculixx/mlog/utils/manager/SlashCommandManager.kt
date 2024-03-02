@@ -51,7 +51,7 @@ object SlashCommandManager {
                 subcommand("unregister-mod", "Unregister a mod from your server") {
                     option<String>("project", "The ID of your mod/plugin", true, true)
                 }
-                subcommand("code-timeout", "Set the timeout for new generated codes") {
+                subcommand("change-timeout", "Set the timeout for new generated codes") {
                     option<String>("project", "The ID of your mod/plugin", true, true)
                     option<String>("timeout", "The time after each code becomes unusable (e.g. 1d 6h)", true)
                 }
