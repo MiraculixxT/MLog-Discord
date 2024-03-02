@@ -19,5 +19,6 @@ private fun Application.module() {
         }
     }
     configureWebhooks()
+    configureGeneral()
     de.miraculixx.mlog.LOGGER.info("WebServer is now online!")
 }
