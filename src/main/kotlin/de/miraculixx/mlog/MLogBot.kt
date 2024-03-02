@@ -57,21 +57,29 @@ object MLogBot {
     private fun keepAlive() {
         runBlocking {
             var online = true
-            while (online) {
+            try {
                 val scanner = Scanner(System.`in`)
-                when (val out = scanner.nextLine()) {
-                    "exit" -> {
-                        JDA.shardManager?.setStatus(OnlineStatus.OFFLINE)
-                        JDA.shutdown()
-                        LOGGER.info("MLog is now offline!")
-                        online = false
-                    }
 
-                    else -> {
-                        LOGGER.warn("Command $out not found!")
-                        LOGGER.warn("Current Commands -> 'exit'")
+                while (online) {
+                    when (val out = scanner.nextLine()) {
+                        "exit" -> {
+                            JDA.shardManager?.setStatus(OnlineStatus.OFFLINE)
+                            JDA.shutdown()
+                            LOGGER.info("MLog is now offline!")
+                            online = false
+                        }
+
+                        else -> {
+                            LOGGER.warn("Command $out not found!")
+                            LOGGER.warn("Current Commands -> 'exit'")
+                        }
                     }
                 }
+                scanner.close()
+            } catch (e: Exception) {
+                LOGGER.error("Error while reading console input: ${e.message}")
+                LOGGER.error("Stop catching console input and just keep alive.")
+                while (online) {}
             }
         }
     }
