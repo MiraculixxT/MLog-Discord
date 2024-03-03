@@ -14,7 +14,7 @@ import java.time.Instant
 class CodeCommand : SlashCommandEvent {
     override suspend fun trigger(it: SlashCommandInteractionEvent) {
         val guild = it.guild ?: return
-        val mod = it.getOption("mod")?.asString ?: return
+        val mod = it.getOption("project")?.asString ?: return
         val channel = it.getOption("channel")?.asChannel ?: it.channel
         if (channel !is MessageChannel) {
             it.reply_("```diff\n- Please provide a valid message channel!```", ephemeral = true).queue()

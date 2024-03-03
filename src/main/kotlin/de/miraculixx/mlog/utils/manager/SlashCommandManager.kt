@@ -23,7 +23,7 @@ object SlashCommandManager {
         jda.listener<SlashCommandInteractionEvent> {
             val commandClass = commands[it.name] ?: return@listener
             val subCommandGroup = it.subcommandGroup
-            LOGGER.info("${it.user.name}: /${it.name}${if (subCommandGroup == null) "" else " $subCommandGroup"} ${it.subcommandName}")
+            LOGGER.info("${it.user.name}: /${it.name}${if (subCommandGroup == null) "" else " $subCommandGroup"} ${it.subcommandName ?: ""}")
             try {
                 commandClass.trigger(it)
             } catch (e: Exception) {
